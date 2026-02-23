@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Offer Comparison Calculator - CareerKit</title>
+  <meta name="description" content="Compare two job offers by combining salary, bonus, match, stipend, and commute costs into annual value.">
+  <meta name="keywords" content="offer comparison calculator, compare job offers">
+  <link rel="canonical" href="https://devtoolbox.dedyn.io/careerkit/offer-comparison-calculator.html">
+  <meta name="robots" content="index,follow">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Offer Comparison Calculator - CareerKit">
+  <meta property="og:description" content="Compare total annual offer value side by side.">
+  <meta property="og:url" content="https://devtoolbox.dedyn.io/careerkit/offer-comparison-calculator.html">
+  <meta property="og:site_name" content="CareerKit">
+  <meta property="og:image" content="https://devtoolbox.dedyn.io/og/default.png">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Offer Comparison Calculator - CareerKit">
+  <meta name="twitter:description" content="Compare total annual offer value side by side.">
+  <meta name="twitter:image" content="https://devtoolbox.dedyn.io/og/default.png">
+  <link rel="stylesheet" href="/careerkit/style.css">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebApplication",
+        "name": "CareerKit Offer Comparison Calculator",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Any",
+        "url": "https://devtoolbox.dedyn.io/careerkit/offer-comparison-calculator.html"
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "CareerKit",
+            "item": "https://devtoolbox.dedyn.io/careerkit/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Offer Comparison Calculator",
+            "item": "https://devtoolbox.dedyn.io/careerkit/offer-comparison-calculator.html"
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <div class="site-wrap">
+    <header class="topbar">
+      <a class="brand" href="/careerkit/">
+        <span class="brand-dot" aria-hidden="true"></span>
+        <span>CareerKit</span>
+      </a>
+      <nav class="nav-links" aria-label="Primary">
+        <a href="/careerkit/">Home</a>
+        <a href="/careerkit/salary-hourly-calculator.html">Salary to Hourly</a>
+        <a href="/careerkit/raise-calculator.html">Raise</a>
+        <a href="/careerkit/overtime-calculator.html">Overtime</a>
+        <a href="/kits/">All Kits</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="panel hero">
+        <h1>Offer Comparison Calculator <span class="badge">A/B evaluation</span></h1>
+        <p>Compare two offers by estimated annual value after adding key perks and subtracting commute costs.</p>
+      </section>
+
+      <section class="panel card">
+        <div class="comparison-grid">
+          <div class="card">
+            <h3>Offer A</h3>
+            <label for="baseA">Base salary ($)</label>
+            <input id="baseA" type="number" min="0" max="5000000" step="100" value="98000">
+            <label for="bonusA">Annual bonus ($)</label>
+            <input id="bonusA" type="number" min="0" max="5000000" step="100" value="5000">
+            <label for="matchA">Employer match (% of base)</label>
+            <input id="matchA" type="number" min="0" max="25" step="0.1" value="4">
+            <label for="stipendA">Monthly stipend ($)</label>
+            <input id="stipendA" type="number" min="0" max="100000" step="10" value="150">
+            <label for="commuteA">Monthly commute cost ($)</label>
+            <input id="commuteA" type="number" min="0" max="100000" step="10" value="320">
+          </div>
+
+          <div class="card">
+            <h3>Offer B</h3>
+            <label for="baseB">Base salary ($)</label>
+            <input id="baseB" type="number" min="0" max="5000000" step="100" value="103000">
+            <label for="bonusB">Annual bonus ($)</label>
+            <input id="bonusB" type="number" min="0" max="5000000" step="100" value="3500">
+            <label for="matchB">Employer match (% of base)</label>
+            <input id="matchB" type="number" min="0" max="25" step="0.1" value="3">
+            <label for="stipendB">Monthly stipend ($)</label>
+            <input id="stipendB" type="number" min="0" max="100000" step="10" value="80">
+            <label for="commuteB">Monthly commute cost ($)</label>
+            <input id="commuteB" type="number" min="0" max="100000" step="10" value="120">
+          </div>
+        </div>
+
+        <div class="actions" style="margin-top: 14px;">
+          <button type="button" id="calculateBtn">Compare Offers</button>
+        </div>
+
+        <div id="result" class="result" aria-live="polite">
+          <strong>Your offer comparison will appear here.</strong>
+        </div>
+      </section>
+
+      <section class="panel card" style="margin-top:14px;">
+        <h3>Notes</h3>
+        <p><strong>What is included in annual value?</strong><br>Base salary, annual bonus, match estimate, and stipend minus annual commute cost.</p>
+        <p><strong>What is not included?</strong><br>Equity, healthcare quality, growth trajectory, and manager/team fit are not quantified here.</p>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const fields = [
+      'baseA', 'bonusA', 'matchA', 'stipendA', 'commuteA',
+      'baseB', 'bonusB', 'matchB', 'stipendB', 'commuteB'
+    ].map((id) => document.getElementById(id));
+    const result = document.getElementById('result');
+
+    function money(value) {
+      return '$' + value.toLocaleString(undefined, {maximumFractionDigits: 2, minimumFractionDigits: 2});
+    }
+
+    function annualValue(base, bonus, matchPct, stipendMonthly, commuteMonthly) {
+      return base + bonus + (base * matchPct / 100) + (stipendMonthly * 12) - (commuteMonthly * 12);
+    }
+
+    function parseValue(input, min, max) {
+      const value = Number(input.value);
+      if (!Number.isFinite(value) || value < min || value > max) {
+        return null;
+      }
+      return value;
+    }
+
+    function compareOffers() {
+      const values = {
+        baseA: parseValue(document.getElementById('baseA'), 0, 5000000),
+        bonusA: parseValue(document.getElementById('bonusA'), 0, 5000000),
+        matchA: parseValue(document.getElementById('matchA'), 0, 25),
+        stipendA: parseValue(document.getElementById('stipendA'), 0, 100000),
+        commuteA: parseValue(document.getElementById('commuteA'), 0, 100000),
+        baseB: parseValue(document.getElementById('baseB'), 0, 5000000),
+        bonusB: parseValue(document.getElementById('bonusB'), 0, 5000000),
+        matchB: parseValue(document.getElementById('matchB'), 0, 25),
+        stipendB: parseValue(document.getElementById('stipendB'), 0, 100000),
+        commuteB: parseValue(document.getElementById('commuteB'), 0, 100000)
+      };
+
+      if (Object.values(values).some((v) => v === null)) {
+        result.className = 'result warn';
+        result.innerHTML = '<strong>Please enter valid values within the allowed ranges.</strong>';
+        return;
+      }
+
+      const totalA = annualValue(values.baseA, values.bonusA, values.matchA, values.stipendA, values.commuteA);
+      const totalB = annualValue(values.baseB, values.bonusB, values.matchB, values.stipendB, values.commuteB);
+      const diff = totalB - totalA;
+      const preferred = diff > 0 ? 'Offer B' : diff < 0 ? 'Offer A' : 'Tie';
+
+      result.className = 'result ok';
+      result.innerHTML = `
+        <strong>Estimated annual value - Offer A: ${money(totalA)}</strong>
+        <ul>
+          <li>Estimated annual value - Offer B: ${money(totalB)}</li>
+          <li>Difference (B - A): ${money(diff)}</li>
+          <li>Higher estimated value: ${preferred}</li>
+        </ul>
+        <div class="small">Use this with qualitative factors like growth, role scope, and team quality before deciding.</div>
+      `;
+    }
+
+    document.getElementById('calculateBtn').addEventListener('click', compareOffers);
+    compareOffers();
+  </script>
+</body>
+</html>

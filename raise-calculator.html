@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Raise Calculator - CareerKit</title>
+  <meta name="description" content="Model salary raise outcomes with inflation adjustment and optional one-time bonus impact.">
+  <meta name="keywords" content="raise calculator, salary increase calculator, inflation adjusted raise">
+  <link rel="canonical" href="https://devtoolbox.dedyn.io/careerkit/raise-calculator.html">
+  <meta name="robots" content="index,follow">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Raise Calculator - CareerKit">
+  <meta property="og:description" content="Estimate nominal and real raise impact.">
+  <meta property="og:url" content="https://devtoolbox.dedyn.io/careerkit/raise-calculator.html">
+  <meta property="og:site_name" content="CareerKit">
+  <meta property="og:image" content="https://devtoolbox.dedyn.io/og/default.png">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Raise Calculator - CareerKit">
+  <meta name="twitter:description" content="Estimate nominal and real raise impact.">
+  <meta name="twitter:image" content="https://devtoolbox.dedyn.io/og/default.png">
+  <link rel="stylesheet" href="/careerkit/style.css">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebApplication",
+        "name": "CareerKit Raise Calculator",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Any",
+        "url": "https://devtoolbox.dedyn.io/careerkit/raise-calculator.html"
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "CareerKit",
+            "item": "https://devtoolbox.dedyn.io/careerkit/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Raise Calculator",
+            "item": "https://devtoolbox.dedyn.io/careerkit/raise-calculator.html"
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <div class="site-wrap">
+    <header class="topbar">
+      <a class="brand" href="/careerkit/">
+        <span class="brand-dot" aria-hidden="true"></span>
+        <span>CareerKit</span>
+      </a>
+      <nav class="nav-links" aria-label="Primary">
+        <a href="/careerkit/">Home</a>
+        <a href="/careerkit/salary-hourly-calculator.html">Salary to Hourly</a>
+        <a href="/careerkit/overtime-calculator.html">Overtime</a>
+        <a href="/careerkit/offer-comparison-calculator.html">Offer Comparison</a>
+        <a href="/kits/">All Kits</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="panel hero">
+        <h1>Raise Calculator <span class="badge">Compensation planning</span></h1>
+        <p>Estimate your new salary, monthly improvement, and real raise after inflation.</p>
+      </section>
+
+      <section class="panel card">
+        <div class="grid form-grid">
+          <div>
+            <label for="currentSalary">Current annual salary ($)</label>
+            <input id="currentSalary" type="number" min="1000" max="5000000" step="100" value="92000">
+          </div>
+          <div>
+            <label for="raisePct">Raise percentage (%)</label>
+            <input id="raisePct" type="number" min="-50" max="300" step="0.1" value="6.5">
+          </div>
+          <div>
+            <label for="inflationPct">Inflation estimate (%)</label>
+            <input id="inflationPct" type="number" min="-10" max="50" step="0.1" value="3.0">
+          </div>
+          <div>
+            <label for="bonus">One-time bonus ($)</label>
+            <input id="bonus" type="number" min="0" max="5000000" step="100" value="2500">
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="button" id="calculateBtn">Calculate Raise Impact</button>
+        </div>
+
+        <div id="result" class="result" aria-live="polite">
+          <strong>Your raise estimate will appear here.</strong>
+        </div>
+      </section>
+
+      <section class="panel card" style="margin-top:14px;">
+        <h3>Notes</h3>
+        <p><strong>What is a real raise?</strong><br>Real raise adjusts your nominal increase by inflation to estimate purchasing-power change.</p>
+        <p><strong>Should bonus be treated as recurring?</strong><br>No. This model treats bonus as one-time in year one unless your plan assumes recurring bonus terms.</p>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const currentSalaryInput = document.getElementById('currentSalary');
+    const raisePctInput = document.getElementById('raisePct');
+    const inflationPctInput = document.getElementById('inflationPct');
+    const bonusInput = document.getElementById('bonus');
+    const result = document.getElementById('result');
+
+    function money(value) {
+      return '$' + value.toLocaleString(undefined, {maximumFractionDigits: 2, minimumFractionDigits: 2});
+    }
+
+    function roundTo(value, decimals) {
+      const scale = 10 ** decimals;
+      return Math.round(value * scale) / scale;
+    }
+
+    function calculateRaise() {
+      const currentSalary = Number(currentSalaryInput.value);
+      const raisePct = Number(raisePctInput.value);
+      const inflationPct = Number(inflationPctInput.value);
+      const bonus = Number(bonusInput.value);
+
+      if (![currentSalary, raisePct, inflationPct, bonus].every(Number.isFinite)) {
+        result.className = 'result warn';
+        result.innerHTML = '<strong>Please enter valid values for all fields.</strong>';
+        return;
+      }
+      if (currentSalary < 1000 || currentSalary > 5000000) {
+        result.className = 'result warn';
+        result.innerHTML = '<strong>Current salary should be between 1,000 and 5,000,000.</strong>';
+        return;
+      }
+      if (raisePct < -50 || raisePct > 300) {
+        result.className = 'result warn';
+        result.innerHTML = '<strong>Raise percentage should be between -50% and 300%.</strong>';
+        return;
+      }
+      if (inflationPct < -10 || inflationPct > 50) {
+        result.className = 'result warn';
+        result.innerHTML = '<strong>Inflation estimate should be between -10% and 50%.</strong>';
+        return;
+      }
+      if (bonus < 0 || bonus > 5000000) {
+        result.className = 'result warn';
+        result.innerHTML = '<strong>Bonus should be between 0 and 5,000,000.</strong>';
+        return;
+      }
+
+      const newSalary = currentSalary * (1 + raisePct / 100);
+      const annualIncrease = newSalary - currentSalary;
+      const monthlyIncrease = annualIncrease / 12;
+      const firstYearComp = newSalary + bonus;
+      const realRaisePct = (((1 + raisePct / 100) / (1 + inflationPct / 100)) - 1) * 100;
+
+      result.className = 'result ok';
+      result.innerHTML = `
+        <strong>New annual salary: ${money(newSalary)}</strong>
+        <ul>
+          <li>Nominal annual increase: ${money(annualIncrease)} (${roundTo(raisePct, 2)}%)</li>
+          <li>Monthly increase: ${money(monthlyIncrease)}</li>
+          <li>Inflation-adjusted raise: ${roundTo(realRaisePct, 2)}%</li>
+          <li>Total first-year compensation (with bonus): ${money(firstYearComp)}</li>
+        </ul>
+        <div class="small">Compare nominal and real raise before accepting revised compensation terms.</div>
+      `;
+    }
+
+    document.getElementById('calculateBtn').addEventListener('click', calculateRaise);
+    calculateRaise();
+  </script>
+</body>
+</html>

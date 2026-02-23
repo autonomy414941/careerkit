@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Salary to Hourly Calculator - CareerKit</title>
+  <meta name="description" content="Convert annual salary to hourly, weekly, and monthly pay based on weekly hours, working weeks, and paid days off.">
+  <meta name="keywords" content="salary to hourly calculator, hourly wage from salary">
+  <link rel="canonical" href="https://devtoolbox.dedyn.io/careerkit/salary-hourly-calculator.html">
+  <meta name="robots" content="index,follow">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Salary to Hourly Calculator - CareerKit">
+  <meta property="og:description" content="Estimate hourly and weekly pay from annual salary assumptions.">
+  <meta property="og:url" content="https://devtoolbox.dedyn.io/careerkit/salary-hourly-calculator.html">
+  <meta property="og:site_name" content="CareerKit">
+  <meta property="og:image" content="https://devtoolbox.dedyn.io/og/default.png">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Salary to Hourly Calculator - CareerKit">
+  <meta name="twitter:description" content="Estimate hourly and weekly pay from annual salary assumptions.">
+  <meta name="twitter:image" content="https://devtoolbox.dedyn.io/og/default.png">
+  <link rel="stylesheet" href="/careerkit/style.css">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebApplication",
+        "name": "CareerKit Salary to Hourly Calculator",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Any",
+        "url": "https://devtoolbox.dedyn.io/careerkit/salary-hourly-calculator.html"
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "CareerKit",
+            "item": "https://devtoolbox.dedyn.io/careerkit/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Salary to Hourly Calculator",
+            "item": "https://devtoolbox.dedyn.io/careerkit/salary-hourly-calculator.html"
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <div class="site-wrap">
+    <header class="topbar">
+      <a class="brand" href="/careerkit/">
+        <span class="brand-dot" aria-hidden="true"></span>
+        <span>CareerKit</span>
+      </a>
+      <nav class="nav-links" aria-label="Primary">
+        <a href="/careerkit/">Home</a>
+        <a href="/careerkit/raise-calculator.html">Raise</a>
+        <a href="/careerkit/overtime-calculator.html">Overtime</a>
+        <a href="/careerkit/offer-comparison-calculator.html">Offer Comparison</a>
+        <a href="/kits/">All Kits</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="panel hero">
+        <h1>Salary to Hourly Calculator <span class="badge">Pay conversion</span></h1>
+        <p>Translate annual salary into hourly, weekly, and monthly values based on your work schedule.</p>
+      </section>
+
+      <section class="panel card">
+        <div class="grid form-grid">
+          <div>
+            <label for="annualSalary">Annual salary ($)</label>
+            <input id="annualSalary" type="number" min="1000" max="5000000" step="100" value="92000">
+          </div>
+          <div>
+            <label for="hoursPerWeek">Hours per week</label>
+            <input id="hoursPerWeek" type="number" min="1" max="100" step="0.5" value="40">
+          </div>
+          <div>
+            <label for="weeksPerYear">Working weeks per year</label>
+            <input id="weeksPerYear" type="number" min="1" max="52" step="1" value="52">
+          </div>
+          <div>
+            <label for="paidDaysOff">Paid days off per year</label>
+            <input id="paidDaysOff" type="number" min="0" max="60" step="1" value="15">
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="button" id="calculateBtn">Convert Salary</button>
+        </div>
+
+        <div id="result" class="result" aria-live="polite">
+          <strong>Your compensation conversion will appear here.</strong>
+        </div>
+      </section>
+
+      <section class="panel card" style="margin-top:14px;">
+        <h3>Notes</h3>
+        <p><strong>Why include paid days off?</strong><br>Paid days off reduce effective worked hours, which increases implied hourly value.</p>
+        <p><strong>Can this estimate be used for contractor rates?</strong><br>Use as a baseline only. Contractors often add overhead for taxes, insurance, and unpaid downtime.</p>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const annualSalaryInput = document.getElementById('annualSalary');
+    const hoursPerWeekInput = document.getElementById('hoursPerWeek');
+    const weeksPerYearInput = document.getElementById('weeksPerYear');
+    const paidDaysOffInput = document.getElementById('paidDaysOff');
+    const result = document.getElementById('result');
+
+    function money(value) {
+      return '$' + value.toLocaleString(undefined, {maximumFractionDigits: 2, minimumFractionDigits: 2});
+    }
+
+    function roundTo(value, decimals) {
+      const scale = 10 ** decimals;
+      return Math.round(value * scale) / scale;
+    }
+
+    function calculate() {
+      const annualSalary = Number(annualSalaryInput.value);
+      const hoursPerWeek = Number(hoursPerWeekInput.value);
+      const weeksPerYear = Number(weeksPerYearInput.value);
+      const paidDaysOff = Number(paidDaysOffInput.value);
+
+      if (![annualSalary, hoursPerWeek, weeksPerYear, paidDaysOff].every(Number.isFinite)) {
+        result.className = 'result warn';
+        result.innerHTML = '<strong>Please enter valid values for all fields.</strong>';
+        return;
+      }
+      if (annualSalary < 1000 || annualSalary > 5000000) {
+        result.className = 'result warn';
+        result.innerHTML = '<strong>Annual salary should be between 1,000 and 5,000,000.</strong>';
+        return;
+      }
+      if (hoursPerWeek <= 0 || hoursPerWeek > 100) {
+        result.className = 'result warn';
+        result.innerHTML = '<strong>Hours per week should be between 1 and 100.</strong>';
+        return;
+      }
+      if (!Number.isInteger(weeksPerYear) || weeksPerYear < 1 || weeksPerYear > 52) {
+        result.className = 'result warn';
+        result.innerHTML = '<strong>Working weeks should be a whole number between 1 and 52.</strong>';
+        return;
+      }
+      if (!Number.isInteger(paidDaysOff) || paidDaysOff < 0 || paidDaysOff > 60) {
+        result.className = 'result warn';
+        result.innerHTML = '<strong>Paid days off should be a whole number between 0 and 60.</strong>';
+        return;
+      }
+
+      const dailyHours = hoursPerWeek / 5;
+      const effectiveHours = (hoursPerWeek * weeksPerYear) - (paidDaysOff * dailyHours);
+      if (effectiveHours <= 0) {
+        result.className = 'result warn';
+        result.innerHTML = '<strong>Effective worked hours must be greater than zero. Reduce days off or increase work schedule.</strong>';
+        return;
+      }
+
+      const hourlyRate = annualSalary / effectiveHours;
+      const weeklyPay = annualSalary / weeksPerYear;
+      const monthlyPay = annualSalary / 12;
+      const dailyPay = weeklyPay / 5;
+
+      result.className = 'result ok';
+      result.innerHTML = `
+        <strong>Estimated hourly pay: ${money(hourlyRate)}</strong>
+        <ul>
+          <li>Weekly pay: ${money(weeklyPay)}</li>
+          <li>Monthly pay: ${money(monthlyPay)}</li>
+          <li>Daily pay (5-day week): ${money(dailyPay)}</li>
+          <li>Effective worked hours/year: ${roundTo(effectiveHours, 1).toLocaleString()}</li>
+        </ul>
+        <div class="small">Use this estimate to benchmark offers and rate negotiations.</div>
+      `;
+    }
+
+    document.getElementById('calculateBtn').addEventListener('click', calculate);
+    calculate();
+  </script>
+</body>
+</html>
